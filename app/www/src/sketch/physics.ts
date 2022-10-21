@@ -11,7 +11,7 @@ import {
 
 import processing from "p5";
 
-const WORLD_SCALE = 5;
+const WORLD_SCALE = 2.5;
 
 const engine = Engine.create({
   gravity: {
@@ -145,8 +145,8 @@ class PhysRect extends Phys {
 
   get position() {
     return {
-      x: ((this.matter.position.x / WORLD_SCALE) - this.width / 2),
-      y: ((this.matter.position.y / WORLD_SCALE) - this.height / 2),
+      x: this.matter.position.x / WORLD_SCALE - this.width / 2,
+      y: this.matter.position.y / WORLD_SCALE - this.height / 2,
     };
   }
 
@@ -167,7 +167,10 @@ class PhysRect extends Phys {
 
   draw(p5: processing) {
     p5.push();
-    p5.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
+    p5.translate(
+      this.position.x + this.width / 2,
+      this.position.y + this.height / 2
+    );
     p5.rotate(this.angle);
     p5.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     p5.pop();
