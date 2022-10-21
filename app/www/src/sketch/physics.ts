@@ -6,21 +6,34 @@ import {
   Engine,
   IBodyDefinition,
   IChamferableBodyDefinition,
+  Runner,
 } from "matter-js";
 
 import processing from "p5";
 
-const engine = Engine.create();
+const WORLD_SCALE = 5;
 
-let lu: number;
+const engine = Engine.create({
+  gravity: {
+    scale: 0.001 * WORLD_SCALE,
+    x: 0,
+    y: 1,
+  },
+});
+
 const start = () => {
-  lu = performance.now();
+  Runner.run(engine);
 };
 
+let hasWarned = false;
 const update = () => {
-  let dt = performance.now() - lu;
-  Engine.update(engine, dt);
-  lu = performance.now();
+  if (!hasWarned) {
+    console.warn(
+      "update() is no longer needed!\n",
+      "Please remove update calls and its imports from your code as it will be removed in the next release."
+    );
+    hasWarned = true;
+  }
 };
 
 // How to polymorph with ...arguments style syntax in typescript
@@ -30,7 +43,7 @@ const update = () => {
 
 class Phys {
   // Private Variables
-  private lastPosition: {x: number, y: number};
+  private lastPosition: { x: number; y: number };
   private lastAngle: number;
 
   // Public Variables
@@ -60,20 +73,23 @@ class Phys {
 
   get position() {
     return {
-      x: this.matter.position.x,
-      y: this.matter.position.y,
+      x: this.matter.position.x / WORLD_SCALE,
+      y: this.matter.position.y / WORLD_SCALE,
     };
   }
 
   set position(pos: { x: number; y: number }) {
     if (this.matter.isStatic) {
-      this.velocity = { x: -(this.lastPosition.x - pos.x), y: -(this.lastPosition.y - pos.y) };
+      this.velocity = {
+        x: -(this.lastPosition.x - pos.x),
+        y: -(this.lastPosition.y - pos.y),
+      };
       this.lastPosition = pos;
     }
 
     Body.setPosition(this.matter, {
-      x: pos.x,
-      y: pos.y,
+      x: pos.x * WORLD_SCALE,
+      y: pos.y * WORLD_SCALE,
     });
   }
 
@@ -113,7 +129,15 @@ class PhysRect extends Phys {
     h: number,
     options?: IChamferableBodyDefinition
   ) {
-    super(() => Bodies.rectangle(x + w / 2, y + h / 2, w, h, options));
+    super(() =>
+      Bodies.rectangle(
+        (x + w / 2) * WORLD_SCALE,
+        (y + h / 2) * WORLD_SCALE,
+        w * WORLD_SCALE,
+        h * WORLD_SCALE,
+        options
+      )
+    );
 
     this.width = w;
     this.height = h;
@@ -121,16 +145,16 @@ class PhysRect extends Phys {
 
   get position() {
     return {
-      x: this.matter.position.x - this.width / 2,
-      y: this.matter.position.y - this.height / 2,
+      x: ((this.matter.position.x / WORLD_SCALE) - this.width / 2),
+      y: ((this.matter.position.y / WORLD_SCALE) - this.height / 2),
     };
   }
 
   set position(pos: { x: number; y: number }) {
     super.position = pos;
     Body.setPosition(this.matter, {
-      x: pos.x + this.width / 2,
-      y: pos.y + this.height / 2,
+      x: (pos.x + this.width / 2) * WORLD_SCALE,
+      y: (pos.y + this.height / 2) * WORLD_SCALE,
     });
   }
 
@@ -143,8 +167,8 @@ class PhysRect extends Phys {
 
   draw(p5: processing) {
     p5.push();
-    p5.translate(this.matter.position.x, this.matter.position.y);
-    p5.rotate(this.matter.angle);
+    p5.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
+    p5.rotate(this.angle);
     p5.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     p5.pop();
   }
@@ -154,7 +178,9 @@ class PhysCirc extends Phys {
   private radius: number;
 
   constructor(x: number, y: number, r: number, options?: IBodyDefinition) {
-    super(() => Bodies.circle(x, y, r, options));
+    super(() =>
+      Bodies.circle(x * WORLD_SCALE, y * WORLD_SCALE, r * WORLD_SCALE, options)
+    );
 
     this.radius = r;
   }
