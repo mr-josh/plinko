@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Start dev server",
+      "cwd": "${workspaceFolder}/app/www",
+      "command": "npm run dev",
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Start tauri app",
+      "cwd": "${workspaceFolder}/app",
+      "command": "cargo tauri dev"
+    }
+  ]
+}
