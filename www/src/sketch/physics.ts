@@ -11,7 +11,7 @@ import {
 
 import processing from "p5";
 
-const WORLD_SCALE = 2.5;
+const WORLD_SCALE = 3;
 
 const engine = Engine.create({
   gravity: {
@@ -58,6 +58,10 @@ class Phys {
     Composite.add(engine.world, this.matter);
   }
 
+  remove() {
+    Composite.remove(engine.world, this.matter);
+  }
+
   get angle() {
     return this.matter.angle;
   }
@@ -79,14 +83,6 @@ class Phys {
   }
 
   set position(pos: { x: number; y: number }) {
-    if (this.matter.isStatic) {
-      this.velocity = {
-        x: -(this.lastPosition.x - pos.x),
-        y: -(this.lastPosition.y - pos.y),
-      };
-      this.lastPosition = pos;
-    }
-
     Body.setPosition(this.matter, {
       x: pos.x * WORLD_SCALE,
       y: pos.y * WORLD_SCALE,
@@ -112,6 +108,16 @@ class Phys {
   isCollidingWith(obj: Body): boolean {
     // @ts-ignore
     return Collision.collides(this.matter, obj);
+  }
+
+  phys() {
+    if (this.matter.isStatic) {
+      this.velocity = {
+        x: -(this.lastPosition.x - this.position.x) * WORLD_SCALE,
+        y: -(this.lastPosition.y - this.position.y) * WORLD_SCALE,
+      };
+      this.lastPosition = this.position;
+    }
   }
 
   draw(_: processing) {}
@@ -145,8 +151,8 @@ class PhysRect extends Phys {
 
   get position() {
     return {
-      x: this.matter.position.x / WORLD_SCALE - this.width / 2,
-      y: this.matter.position.y / WORLD_SCALE - this.height / 2,
+      x: ((this.matter.position.x / WORLD_SCALE) - this.width / 2),
+      y: ((this.matter.position.y / WORLD_SCALE) - this.height / 2),
     };
   }
 
@@ -167,10 +173,7 @@ class PhysRect extends Phys {
 
   draw(p5: processing) {
     p5.push();
-    p5.translate(
-      this.position.x + this.width / 2,
-      this.position.y + this.height / 2
-    );
+    p5.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
     p5.rotate(this.angle);
     p5.rect(-this.width / 2, -this.height / 2, this.width, this.height);
     p5.pop();
