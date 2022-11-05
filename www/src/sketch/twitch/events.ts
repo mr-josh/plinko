@@ -55,6 +55,22 @@ class PubSub extends EventTarget {
                 })
               );
               break;
+            case "community-bits-events-v2.194798269":
+              let bits = JSON.parse(data.data.message);
+
+              this.dispatchEvent(
+                new CustomEvent("bits", {
+                  detail: {
+                    bits: bits.data.bits_used,
+                    user: {
+                      anon: bits.data.is_anonymous,
+                      id: bits.data.user_id,
+                      login: bits.data.user_name,
+                    },
+                  },
+                })
+              );
+              break;
           }
           break;
       }

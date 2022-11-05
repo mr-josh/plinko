@@ -6,6 +6,11 @@ import processing from "p5";
 import { start } from "sketch/physics";
 import PubSub from "./twitch/events";
 
+const QUEUE_TIMER = 500;
+const CHUNK_MAX = {
+  CHANNEL_POINTS: 5,
+  BITS: 50,
+};
 const WALL_WIDTH = 100;
 const WALL_OFFSET = 150;
 const PEGS_PADDING = 250;
@@ -15,8 +20,12 @@ const Y_PEGS = 16;
 
 const twitch = new PubSub();
 
+// @ts-ignore
+window.twitch = twitch;
+
 const Sketch = (p5: processing) => {
-  let queue: { amount: number; user: string; color: string }[] = [];
+  let queue: { amount: number; userId: string; name: string; color: string }[] =
+    [];
   let balls: Ball[] = [];
   let pegs: Peg[] = [];
   let buckets: Bucket[] = [];
@@ -34,7 +43,7 @@ const Sketch = (p5: processing) => {
     // Create Buckets
     buckets.push(
       // new Bucket(p5.width / 4, p5.height - 50, 100, 100, 20),
-      new Bucket((p5.width / 4) * 2, p5.height - 50, 100, 100, 20),
+      new Bucket((p5.width / 4) * 2, p5.height - 50, 100, 100, 20)
       // new Bucket((p5.width / 4) * 3, p5.height - 50, 100, 100, 20)
     );
 
@@ -54,42 +63,58 @@ const Sketch = (p5: processing) => {
       }
     }
 
-    setInterval(() => {
+    const queueHandler = () => {
       if (queue.length > 0) {
-        let { amount, user, color } = queue.shift()!;
+        let { amount, userId, name, color } = queue.shift()!;
         for (let i = 0; i < amount; i++) {
           balls.push(
-            new Ball(
-              p5.width / 2 + (Math.random() - 0.5) * 5,
-              0,
-              10,
-              user,
-              color
-            )
+            new Ball(p5.width / 2 + (Math.random() - 0.5) * 200, 0, 10, {
+              userId,
+              name,
+              color,
+            })
           );
         }
       }
-    }, 5000);
+      setTimeout(queueHandler, QUEUE_TIMER + balls.length * 100);
+    };
+    queueHandler();
 
     twitch.addEventListener("redeem", (event) => {
       const { reward, user } = (event as CustomEvent).detail;
       const title: string = reward.title;
-
 
       if (!title.toLowerCase().startsWith("plinko")) return;
       if (isNaN(+title.split(" ")[1])) return;
 
       let total = +title.split(" ")[1];
       while (total > 0) {
-        let amount = Math.min(total, 10);
+        let amount = Math.min(total, CHUNK_MAX.CHANNEL_POINTS);
         queue.push({
           amount,
-          user: user.login,
+          userId: user.id,
+          name: user.login,
           color: `rgb(${Math.floor(
             Math.max(Math.random() * 255, 200)
           )}, ${Math.floor(Math.max(Math.random() * 255, 200))}, ${Math.floor(
             Math.max(Math.random() * 255, 200)
           )})`,
+        });
+        total -= amount;
+      }
+    });
+
+    twitch.addEventListener("bits", (event) => {
+      const { bits, user } = (event as CustomEvent).detail;
+
+      let total = bits;
+      while (total > 0) {
+        let amount = Math.min(total, CHUNK_MAX.BITS);
+        queue.push({
+          amount,
+          userId: user.id,
+          name: user.login,
+          color: `#fcba3f`,
         });
         total -= amount;
       }
@@ -114,7 +139,9 @@ const Sketch = (p5: processing) => {
 
     for (const ball in balls) {
       balls[ball].draw(p5);
+    }
 
+    for (const ball in balls) {
       if (balls[ball].position.y > p5.height + 100) {
         balls[ball].remove();
         balls.splice(+ball, 1);
@@ -126,7 +153,11 @@ const Sketch = (p5: processing) => {
 
       for (const ball in balls) {
         if (bucket.isInBucket(balls[ball].matter)) {
-          console.log(balls[ball].name, "in bucket");
+          console.log(
+            balls[ball].meta.name,
+            `(${balls[ball].meta.userId})`,
+            "in bucket"
+          );
 
           balls[ball].remove();
           balls.splice(+ball, 1);
