@@ -117,7 +117,7 @@ const Sketch = (p5: processing) => {
         queue.push({
           amount,
           userId: user.id,
-          name: user.login,
+          name: user.name,
           color: `#fcba3f`,
         });
         total -= amount;

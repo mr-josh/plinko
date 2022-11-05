@@ -12,6 +12,8 @@ class PubSub extends EventTarget {
       channels: ["dotmrjosh"],
     });
 
+    this.tmi.connect();
+
     this.tmi.on("cheer", (_channel, userstate, _message) => {
       this.dispatchEvent(
         new CustomEvent("bits", {
@@ -32,18 +34,12 @@ class PubSub extends EventTarget {
     this.configureWs();
   }
 
-  private reconnectPubSub() {
-    this.pingInterval = null;
-    this.ws = new WebSocket("wss://pubsub-edge.twitch.tv");
-    this.configureWs();
-  }
-
   ping() {
     this.ws.send(JSON.stringify({ type: "PING" }));
   }
 
   // dotmrjosh userId: 194798269
-  configureWs = () => {
+  configureWs() {
     this.ws.onopen = () => {
       this.ping();
       this.pingInterval = setInterval(this.ping, 60 * 5 * 1000 + Math.random());
@@ -98,7 +94,11 @@ class PubSub extends EventTarget {
         this.pingInterval = null;
       }
 
-      setTimeout(this.reconnectPubSub, 100 + Math.random() * 100);
+      setTimeout(() => {
+        console.log("Reconnecting...");
+        this.ws = new WebSocket("wss://pubsub-edge.twitch.tv");
+        this.configureWs();
+      }, 1000 + Math.random() * 100);
     };
   };
 }
