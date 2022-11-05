@@ -7,6 +7,7 @@ import { start } from "sketch/physics";
 import PubSub from "./twitch/events";
 
 const QUEUE_TIMER = 500;
+const QUEUE_TIMER_MAX = 2000;
 const CHUNK_MAX = {
   CHANNEL_POINTS: 5,
   BITS: 50,
@@ -76,7 +77,10 @@ const Sketch = (p5: processing) => {
           );
         }
       }
-      setTimeout(queueHandler, QUEUE_TIMER + balls.length * 100);
+      setTimeout(
+        queueHandler,
+        Math.min(QUEUE_TIMER + balls.length * 100, QUEUE_TIMER_MAX)
+      );
     };
     queueHandler();
 
@@ -107,7 +111,7 @@ const Sketch = (p5: processing) => {
     twitch.addEventListener("bits", (event) => {
       const { bits, user } = (event as CustomEvent).detail;
 
-      let total = bits;
+      let total = bits * 5;
       while (total > 0) {
         let amount = Math.min(total, CHUNK_MAX.BITS);
         queue.push({
