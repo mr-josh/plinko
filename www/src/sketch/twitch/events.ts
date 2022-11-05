@@ -20,7 +20,7 @@ class PubSub extends EventTarget {
             user: {
               id: userstate["user-id"],
               name: userstate.username,
-            }
+            },
           },
         })
       );
@@ -52,7 +52,10 @@ class PubSub extends EventTarget {
         JSON.stringify({
           type: "LISTEN",
           data: {
-            topics: ["community-points-channel-v1.194798269"],
+            topics: [
+              "video-playback-by-id.194798269",
+              "community-points-channel-v1.194798269",
+            ],
           },
         })
       );
