@@ -12,7 +12,7 @@ class PubSub extends EventTarget {
       channels: ["dotmrjosh"],
     });
 
-    this.tmi.on("cheer", (channel, userstate, message) => {
+    this.tmi.on("cheer", (_channel, userstate, _message) => {
       this.dispatchEvent(
         new CustomEvent("bits", {
           detail: {
