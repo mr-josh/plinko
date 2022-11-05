@@ -108,21 +108,21 @@ const Sketch = (p5: processing) => {
       }
     });
 
-    // twitch.addEventListener("bits", (event) => {
-    //   const { bits, user } = (event as CustomEvent).detail;
+    twitch.addEventListener("bits", (event) => {
+      const { bits, user } = (event as CustomEvent).detail;
 
-    //   let total = bits * 5;
-    //   while (total > 0) {
-    //     let amount = Math.min(total, CHUNK_MAX.BITS);
-    //     queue.push({
-    //       amount,
-    //       userId: user.id,
-    //       name: user.login,
-    //       color: `#fcba3f`,
-    //     });
-    //     total -= amount;
-    //   }
-    // });
+      let total = bits * 5;
+      while (total > 0) {
+        let amount = Math.min(total, CHUNK_MAX.BITS);
+        queue.push({
+          amount,
+          userId: user.id,
+          name: user.login,
+          color: `#fcba3f`,
+        });
+        total -= amount;
+      }
+    });
   };
 
   // This is the same as our `function draw() { ... }`
