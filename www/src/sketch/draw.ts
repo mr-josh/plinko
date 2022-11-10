@@ -9,7 +9,7 @@ import PubSub from "./twitch/events";
 const QUEUE_TIMER = 500;
 const QUEUE_TIMER_MAX = 2000;
 const CHUNK_MAX = {
-  CHANNEL_POINTS: 5,
+  CHANNEL_POINTS: 10,
   BITS: 50,
 };
 const WALL_WIDTH = 100;
