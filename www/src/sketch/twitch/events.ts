@@ -42,7 +42,10 @@ class PubSub extends EventTarget {
   configureWs() {
     this.ws.onopen = () => {
       this.ping();
-      this.pingInterval = setInterval(this.ping, 60 * 5 * 1000 + Math.random());
+      this.pingInterval = setInterval(
+        this.ping.bind(this),
+        60 * 5 * 1000 + Math.random()
+      );
 
       this.ws.send(
         JSON.stringify({
@@ -100,7 +103,7 @@ class PubSub extends EventTarget {
         this.configureWs();
       }, 1000 + Math.random() * 100);
     };
-  };
+  }
 }
 
 export default PubSub;
