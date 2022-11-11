@@ -25,7 +25,7 @@ const twitch = new PubSub();
 window.twitch = twitch;
 
 const Sketch = (p5: processing) => {
-  let queue: { amount: number; userId: string; name: string; color: string }[] =
+  let queue: { amount: number; userId: string; name: string; color: string | processing.Color }[] =
     [];
   let balls: Ball[] = [];
   let pegs: Peg[] = [];
@@ -34,6 +34,7 @@ const Sketch = (p5: processing) => {
   // This is the same as our `function setup() { ... }`
   p5.setup = () => {
     p5.createCanvas(1080, 1080);
+    p5.colorMode(p5.HSL, 360, 100, 100, 100);
 
     start(); // Start Physics
 
@@ -64,6 +65,7 @@ const Sketch = (p5: processing) => {
       }
     }
 
+    // Drop balls from queue
     const queueHandler = () => {
       if (queue.length > 0) {
         let { amount, userId, name, color } = queue.shift()!;
@@ -84,6 +86,7 @@ const Sketch = (p5: processing) => {
     };
     queueHandler();
 
+    // Listen for channel points
     twitch.addEventListener("redeem", (event) => {
       const { reward, user } = (event as CustomEvent).detail;
       const title: string = reward.title;
@@ -108,6 +111,7 @@ const Sketch = (p5: processing) => {
       }
     });
 
+    // Listen for bits
     twitch.addEventListener("bits", (event) => {
       const { bits, user } = (event as CustomEvent).detail;
 
@@ -169,6 +173,20 @@ const Sketch = (p5: processing) => {
       }
     }
   };
+
+  p5.keyPressed = (ev: KeyboardEvent) => {
+    if (ev.key != " ") return;
+    const testAmount = 100;
+
+    let c = p5.color(Math.floor(Math.random() * 360), Math.min(testAmount * 2, 100), 90);
+
+    queue.push({
+      amount: testAmount,
+      userId: "test",
+      name: "test",
+      color: c,
+    });
+  }
 };
 
 export default Sketch;
