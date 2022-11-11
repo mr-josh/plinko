@@ -21,8 +21,6 @@ const Y_PEGS = 16;
 
 const twitch = new PubSub();
 
-// @ts-ignore
-window.twitch = twitch;
 
 const Sketch = (p5: processing) => {
   let queue: { amount: number; userId: string; name: string; color: string | processing.Color }[] =
