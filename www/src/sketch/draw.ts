@@ -170,7 +170,7 @@ const Sketch = (p5: processing) => {
 
       for (const ball in balls) {
         if (bucket.isInBucket(balls[ball].matter)) {
-          if (!balls[ball].meta.type) {
+          if (balls[ball].meta.type) {
             fetch(`${POCKETBASE_URL}/collections/plinko/records`, {
               method: "POST",
               headers: {
