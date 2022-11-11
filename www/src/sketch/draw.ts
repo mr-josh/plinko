@@ -98,15 +98,17 @@ const Sketch = (p5: processing) => {
       let total = +title.split(" ")[1];
       while (total > 0) {
         let amount = Math.min(total, CHUNK_MAX.CHANNEL_POINTS);
+        let c = p5.color(
+          Math.floor(Math.random() * 360),
+          Math.min(amount * 2, 100),
+          90
+        );
+
         queue.push({
           amount,
           userId: user.id,
           name: user.login,
-          color: `rgb(${Math.floor(
-            Math.max(Math.random() * 255, 200)
-          )}, ${Math.floor(Math.max(Math.random() * 255, 200))}, ${Math.floor(
-            Math.max(Math.random() * 255, 200)
-          )})`,
+          color: c,
         });
         total -= amount;
       }
