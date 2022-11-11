@@ -91,6 +91,7 @@ const Sketch = (p5: processing) => {
     twitch.addEventListener("redeem", (event) => {
       const { reward, user } = (event as CustomEvent).detail;
       const title: string = reward.title;
+      const fullAmount = +title.split(" ")[1];
 
       if (!title.toLowerCase().startsWith("plinko")) return;
       if (isNaN(+title.split(" ")[1])) return;
@@ -100,7 +101,7 @@ const Sketch = (p5: processing) => {
         let amount = Math.min(total, CHUNK_MAX.CHANNEL_POINTS);
         let c = p5.color(
           Math.floor(Math.random() * 360),
-          Math.min(amount * 2, 100),
+          Math.min(fullAmount * 5, 100),
           90
         );
 
@@ -179,11 +180,11 @@ const Sketch = (p5: processing) => {
 
   p5.keyPressed = (ev: KeyboardEvent) => {
     if (ev.key != " ") return;
-    const testAmount = 100;
+    const testAmount = 10;
 
     let c = p5.color(
       Math.floor(Math.random() * 360),
-      Math.min(testAmount * 2, 100),
+      Math.min(testAmount * 5, 100),
       90
     );
 
