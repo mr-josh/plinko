@@ -25,7 +25,7 @@ class Bucket {
   draw(p5: processing) {
     p5.fill("black");
     this.walls.forEach((wall) => wall.draw(p5));
-    p5.fill(200, 220, 240, 100);
+    p5.fill(200, 100, 80, 20);
     this.sensor.draw(p5);
   }
 }
