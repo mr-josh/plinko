@@ -21,10 +21,13 @@ const Y_PEGS = 16;
 
 const twitch = new PubSub();
 
-
 const Sketch = (p5: processing) => {
-  let queue: { amount: number; userId: string; name: string; color: string | processing.Color }[] =
-    [];
+  let queue: {
+    amount: number;
+    userId: string;
+    name: string;
+    color: string | processing.Color;
+  }[] = [];
   let balls: Ball[] = [];
   let pegs: Peg[] = [];
   let buckets: Bucket[] = [];
@@ -176,7 +179,11 @@ const Sketch = (p5: processing) => {
     if (ev.key != " ") return;
     const testAmount = 100;
 
-    let c = p5.color(Math.floor(Math.random() * 360), Math.min(testAmount * 2, 100), 90);
+    let c = p5.color(
+      Math.floor(Math.random() * 360),
+      Math.min(testAmount * 2, 100),
+      90
+    );
 
     queue.push({
       amount: testAmount,
@@ -184,7 +191,7 @@ const Sketch = (p5: processing) => {
       name: "test",
       color: c,
     });
-  }
+  };
 };
 
 export default Sketch;
