@@ -3,6 +3,7 @@ import processing from "p5";
 
 class Ball extends PhysCirc {
   public meta: {
+    type?: "points" | "bits" | "subs";
     userId?: string;
     name?: string;
     color?: string | processing.Color;
@@ -12,7 +13,7 @@ class Ball extends PhysCirc {
     x: number,
     y: number,
     r: number,
-    meta: { userId?: string; name?: string; color?: string | processing.Color }
+    meta: { type?: "points" | "bits" | "subs", userId?: string; name?: string; color?: string | processing.Color }
   ) {
     super(x, y, r, {
       mass: 10,

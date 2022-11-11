@@ -6,6 +6,7 @@ import processing from "p5";
 import { start } from "sketch/physics";
 import PubSub from "./twitch/events";
 
+const POCKETBASE_URL = "http://pocketbase.here/api";
 const QUEUE_TIMER = 500;
 const QUEUE_TIMER_MAX = 2000;
 const CHUNK_MAX = {
@@ -23,6 +24,7 @@ const twitch = new PubSub();
 
 const Sketch = (p5: processing) => {
   let queue: {
+    type?: "points" | "bits" | "subs";
     amount: number;
     userId: string;
     name: string;
@@ -69,10 +71,11 @@ const Sketch = (p5: processing) => {
     // Drop balls from queue
     const queueHandler = () => {
       if (queue.length > 0) {
-        let { amount, userId, name, color } = queue.shift()!;
+        let { type, amount, userId, name, color } = queue.shift()!;
         for (let i = 0; i < amount; i++) {
           balls.push(
             new Ball(p5.width / 2 + (Math.random() - 0.5) * 200, 0, 10, {
+              type,
               userId,
               name,
               color,
@@ -106,6 +109,7 @@ const Sketch = (p5: processing) => {
         );
 
         queue.push({
+          type: "points",
           amount,
           userId: user.id,
           name: user.login,
@@ -123,6 +127,7 @@ const Sketch = (p5: processing) => {
       while (total > 0) {
         let amount = Math.min(total, CHUNK_MAX.BITS);
         queue.push({
+          type: "bits",
           amount,
           userId: user.id,
           name: user.name,
@@ -165,11 +170,20 @@ const Sketch = (p5: processing) => {
 
       for (const ball in balls) {
         if (bucket.isInBucket(balls[ball].matter)) {
-          console.log(
-            balls[ball].meta.name,
-            balls[ball].meta.userId,
-            "in bucket"
-          );
+          if (!balls[ball].meta.type) {
+            fetch(`${POCKETBASE_URL}/collections/plinko/records`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: balls[ball].meta.userId,
+                user_display: balls[ball].meta.name,
+                type: balls[ball].meta.type,
+                time_scored: new Date().toISOString(),
+              }),
+            });
+          }
 
           balls[ball].remove();
           balls.splice(+ball, 1);
